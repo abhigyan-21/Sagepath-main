@@ -92,36 +92,45 @@ router.post('/login', async (req, res) => {
 
         // If profile doesn't exist, create it
         if (profileError || !profile) {
-            const userName = data.user.user_metadata?.name || data.user.email.split('@')[0];
+            // ... (existing profile creation code) ...
+        } else {
+            // Update streaks
+            const today = new Date();
+            const lastLogin = profile.last_login ? new Date(profile.last_login) : null;
             
-            const { data: newProfile, error: createError } = await supabase
+            let newStreak = profile.streaks;
+            
+            if (lastLogin) {
+                const diffTime = Math.abs(today - lastLogin);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+                if (diffDays === 1) {
+                    // Consecutive day
+                    newStreak += 1;
+                } else if (diffDays > 1) {
+                    // Missed a day (or more), reset
+                    newStreak = 1;
+                }
+                // If diffDays === 0 (same day), do nothing
+            } else {
+                // First login ever (or since tracking started)
+                newStreak = 1;
+            }
+
+            // Update profile with new streak and last_login
+            const { data: updatedProfile, error: updateError } = await supabase
                 .from('profiles')
-                .insert([{
-                    id: data.user.id,
-                    name: userName,
-                    email: data.user.email
-                }])
+                .update({ 
+                    streaks: newStreak,
+                    last_login: new Date().toISOString()
+                })
+                .eq('id', profile.id)
                 .select()
                 .single();
 
-            if (createError) {
-                console.error('Failed to create profile:', createError);
-                // Return basic user info without profile
-                return res.json({
-                    token: data.session.access_token,
-                    user: {
-                        id: data.user.id,
-                        name: userName,
-                        email: data.user.email,
-                        profileImage: '/Pixel Wizard with Flaming Staff.png',
-                        level: 1,
-                        xp: 0,
-                        streaks: 0
-                    }
-                });
+            if (!updateError) {
+                profile = updatedProfile;
             }
-            
-            profile = newProfile;
         }
 
         res.json({

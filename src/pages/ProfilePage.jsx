@@ -33,16 +33,20 @@ export default function ProfilePage() {
 
                 <div id="profile-item-container">
                     <div className="profile-items">
-                        STREAKS: {profile.streaks || 0}
+                        <div className="item-label">STREAKS</div>
+                        <div className="item-value">{profile.streaks || 0}</div>
                     </div>
                     <div className="profile-items">
-                        TROPHIES: {profile.trophies?.length || 0}
+                        <div className="item-label">TROPHIES</div>
+                        <div className="item-value">{profile.trophies?.length || 0}</div>
                     </div>
                     <div className="profile-items">
-                        FRIENDS: {profile.friends?.length || 0}
+                        <div className="item-label">FRIENDS</div>
+                        <div className="item-value">{profile.friendsCount || 0}</div>
                     </div>
                     <div className="profile-items">
-                        PROJECTS: {profile.projects?.length || 0}
+                        <div className="item-label">PROJECTS</div>
+                        <div className="item-value">{profile.projectsCount || 0}</div>
                     </div>
                 </div>
             </div>
@@ -50,15 +54,28 @@ export default function ProfilePage() {
             <div id="luro-section">
                 <div id="luro-header">
                     <span id="luro-title">LUROS</span>
-                    <div id="luro-counter">{profile.luros?.length || 0}</div>
+                    <div id="luro-counter">{profile.lurosCount || 0}</div>
                 </div>
 
                 <div id="luro-grid">
-                    {profile.luros?.map((luro, index) => (
-                        <div key={luro.id} className="luros">
-                            <img src={luro.image} alt={luro.name} />
-                        </div>
-                    )) || <div className="luros">No Luros yet</div>}
+                    {profile.luros?.length > 0 ? (
+                        profile.luros.map((luro, index) => (
+                            <div key={luro.id || index} className="luro-card">
+                                <div className="luro-image">
+                                    <img src={luro.image} alt={luro.name} />
+                                </div>
+                                <div className="luro-info">
+                                    <h4>{luro.name}</h4>
+                                    <div className="luro-stats">
+                                        <span>Lv. {luro.level}</span>
+                                        <span>{luro.xp} XP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="empty-luros">Complete courses to earn Luros!</div>
+                    )}
                 </div>
             </div>
         </>

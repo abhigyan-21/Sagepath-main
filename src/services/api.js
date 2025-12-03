@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem('token');
@@ -7,7 +7,7 @@ const getToken = () => localStorage.getItem('token');
 const apiCall = async (endpoint, options = {}) => {
     const token = getToken();
     const headers = {
-        'Content-Type': 'application/json',
+        ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token && { Authorization: `Bearer ${token}` }),
         ...options.headers,
     };
@@ -20,6 +20,12 @@ const apiCall = async (endpoint, options = {}) => {
     const data = await response.json();
 
     if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+            throw new Error('Session expired. Please login again.');
+        }
         throw new Error(data.error || 'Something went wrong');
     }
 
@@ -28,25 +34,25 @@ const apiCall = async (endpoint, options = {}) => {
 
 // Auth API
 export const authAPI = {
-    login: (email, password) => 
+    login: (email, password) =>
         apiCall('/auth/login', {
             method: 'POST',
             body: JSON.stringify({ email, password }),
         }),
-    
-    register: (name, email, password) => 
+
+    register: (name, email, password) =>
         apiCall('/auth/register', {
             method: 'POST',
             body: JSON.stringify({ name, email, password }),
         }),
-    
+
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         return apiCall('/auth/logout', { method: 'POST' });
     },
-    
-    resetPassword: (email) => 
+
+    resetPassword: (email) =>
         apiCall('/auth/reset-password', {
             method: 'POST',
             body: JSON.stringify({ email }),
@@ -56,30 +62,32 @@ export const authAPI = {
 // User API
 export const userAPI = {
     getProfile: () => apiCall('/users/profile'),
-    
-    updateProfile: (data) => 
+
+    updateProfile: (data) =>
         apiCall('/users/profile', {
             method: 'PUT',
             body: JSON.stringify(data),
         }),
-    
-    addFriend: (friendId) => 
+
+    addFriend: (friendId) =>
         apiCall(`/users/friends/${friendId}`, { method: 'POST' }),
+
+    getActiveCourse: () => apiCall('/users/active-course'),
 };
 
 // Course API
 export const courseAPI = {
     getAll: () => apiCall('/courses'),
-    
+
     getById: (id) => apiCall(`/courses/${id}`),
-    
-    updateProgress: (courseId, topicId) => 
+
+    updateProgress: (courseId, topicId) =>
         apiCall(`/courses/${courseId}/progress`, {
             method: 'POST',
             body: JSON.stringify({ topicId }),
         }),
-    
-    askDoubt: (courseId, question) => 
+
+    askDoubt: (courseId, question) =>
         apiCall(`/courses/${courseId}/doubts`, {
             method: 'POST',
             body: JSON.stringify({ question }),
@@ -87,21 +95,40 @@ export const courseAPI = {
 };
 
 // Community API
+// Community API
 export const communityAPI = {
-    getPosts: (type) => apiCall(`/community${type ? `?type=${type}` : ''}`),
-    
-    createPost: (data) => 
-        apiCall('/community', {
+    getPosts: (type, sort, scope) => {
+        let url = '/community?';
+        if (type) url += `type=${type}&`;
+        if (sort) url += `sort=${sort}&`;
+        if (scope) url += `scope=${scope}`;
+        return apiCall(url);
+    },
+
+    createPost: (data) => {
+        const formData = new FormData();
+        formData.append('type', data.type);
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        if (data.content) formData.append('content', data.content);
+        if (data.image) formData.append('image', data.image);
+
+        return apiCall('/community', {
             method: 'POST',
-            body: JSON.stringify(data),
-        }),
-    
-    likePost: (postId) => 
+            body: formData,
+            headers: {}, // Let browser set Content-Type
+        });
+    },
+
+    likePost: (postId) =>
         apiCall(`/community/${postId}/like`, { method: 'POST' }),
-    
-    commentPost: (postId, text) => 
+
+    commentPost: (postId, text) =>
         apiCall(`/community/${postId}/comment`, {
             method: 'POST',
             body: JSON.stringify({ text }),
         }),
+
+    deletePost: (postId) =>
+        apiCall(`/community/${postId}`, { method: 'DELETE' }),
 };

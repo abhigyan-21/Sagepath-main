@@ -23,6 +23,10 @@ app.get('/', (req, res) => {
     res.json({ message: 'Sagepath API is running with Supabase' });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+export default app;
+
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}

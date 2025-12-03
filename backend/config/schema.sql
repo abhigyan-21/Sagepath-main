@@ -103,6 +103,7 @@ CREATE TABLE posts (
     description TEXT,
     image TEXT,
     content TEXT,
+    likes_count INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

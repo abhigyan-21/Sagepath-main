@@ -32,20 +32,20 @@ export default function LoginPage() {
         }
 
         setLoading(true);
-        
+
         try {
             const { authAPI } = await import('../services/api.js');
             const data = await authAPI.login(email, password);
-            
+
             // Store token and user data
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-            
+
             // Clear form
             setEmail('');
             setPassword('');
             setError('');
-            
+
             // Navigate to homepage
             navigate('/homepage');
         } catch (err) {
