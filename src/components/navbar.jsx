@@ -5,7 +5,7 @@ function Navbar({ darkMode, setDarkMode }) {
     <nav className="navbar">
       <div className="nav-left">
         <Link to="/homepage">Home</Link>
-        <Link to="/course">Courses</Link>
+        <Link to="/luros">Courses</Link>
         <Link to="/community">Community</Link>
         <Link to="/about">About</Link>
       </div>

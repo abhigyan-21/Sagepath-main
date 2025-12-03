@@ -1,0 +1,89 @@
+[
+  {
+    "title": "Full-Stack Web Development",
+    "topics": [
+      {
+        "title": "HTML, CSS & JavaScript Basics",
+        "video_url": "https://www.youtube.com/watch?v=pQN-pnXPaVg"
+      },
+      {
+        "title": "JavaScript Deep Dive",
+        "video_url": "https://www.youtube.com/playlist?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP"
+      },
+      {
+        "title": "React Basics",
+        "video_url": "https://www.youtube.com/playlist?list=PL4cUxeGkcC9gTg2g8e1n9E0ROlmGAc3n6"
+      },
+      {
+        "title": "Node.js & Express",
+        "video_url": "https://www.youtube.com/watch?v=Oe421EPjeBE"
+      },
+      {
+        "title": "Databases (SQL + MongoDB)",
+        "video_url": "https://www.youtube.com/playlist?list=PL4cUxeGkcC9jsz4LDYc6kv3ymONOKxwBU"
+      },
+      {
+        "title": "Full-Stack Integration",
+        "video_url": "https://www.youtube.com/watch?v=7CqJlxBYj-M"
+      },
+      {
+        "title": "Git, Docker & Deployment",
+        "video_url": "https://www.youtube.com/watch?v=RGOj5yH7evk"
+      }
+    ]
+  },
+  {
+    "title": "Programming Fundamentals & DSA",
+    "topics": [
+      {
+        "title": "Programming Basics",
+        "video_url": "https://www.youtube.com/watch?v=rfscVS0vtbw"
+      },
+      {
+        "title": "Object-Oriented Programming",
+        "video_url": "https://www.youtube.com/watch?v=BSVKUk58K6U"
+      },
+      {
+        "title": "DSA Essentials",
+        "video_url": "https://www.youtube.com/playlist?list=PLfqMhTWNBTe15uFv4qzJot6DgP2f8Yroe"
+      },
+      {
+        "title": "Algorithms",
+        "video_url": "https://www.youtube.com/playlist?list=PLG9aCp4uE-s37tBD2IA9tDqcBv111TNRJ"
+      },
+      {
+        "title": "Problem Solving",
+        "video_url": "https://www.youtube.com/watch?v=EgI5nU9etnU"
+      }
+    ]
+  },
+  {
+    "title": "AI & Machine Learning",
+    "topics": [
+      {
+        "title": "Math for ML",
+        "video_url": "https://www.youtube.com/watch?v=aircAruvnKk"
+      },
+      {
+        "title": "Machine Learning Foundations",
+        "video_url": "https://www.youtube.com/watch?v=ukzFI9rgwfU"
+      },
+      {
+        "title": "Deep Learning",
+        "video_url": "https://www.youtube.com/watch?v=VyWAvY2CF9c"
+      },
+      {
+        "title": "Computer Vision",
+        "video_url": "https://www.youtube.com/watch?v=oXlwWbU8l2o"
+      },
+      {
+        "title": "NLP & LLM Foundations",
+        "video_url": "https://www.youtube.com/watch?v=BrN7_lLO1b8"
+      },
+      {
+        "title": "Modern AI Pipelines (RAG + MLOps)",
+        "video_url": "https://www.youtube.com/watch?v=UkgvZRYaIiU"
+      }
+    ]
+  }
+]

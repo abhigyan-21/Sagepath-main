@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { useLocation } from "react-router-dom";
 
 import Homepage from "./pages/Homepage.jsx";
@@ -12,15 +13,21 @@ import CoursePage from "./pages/CoursePage.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import RegisterPage from "./pages/RegisterPage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import LuroCoursesPage from "./pages/LuroCoursesPage.jsx";
 
 const routes = [
     { path: "/", element: <LandingPage /> },
-    { path: "/homepage", element: <Homepage /> },
-    { path: "/about", element: <AboutPage /> },
-    { path: "/community", element: <CommunityPage /> },
-    { path: "/course", element: <CoursePage /> },
     { path: "/login", element: <LoginPage /> },
-    { path: "/profile", element: <ProfilePage /> },
+    { path: "/register", element: <RegisterPage /> },
+    { path: "/forgot-password", element: <ForgotPasswordPage /> },
+    { path: "/homepage", element: <ProtectedRoute><Homepage /></ProtectedRoute> },
+    { path: "/about", element: <ProtectedRoute><AboutPage /></ProtectedRoute> },
+    { path: "/community", element: <ProtectedRoute><CommunityPage /></ProtectedRoute> },
+    { path: "/luros", element: <ProtectedRoute><LuroCoursesPage /></ProtectedRoute> },
+    { path: "/course/:courseId", element: <ProtectedRoute><CoursePage /></ProtectedRoute> },
+    { path: "/profile", element: <ProtectedRoute><ProfilePage /></ProtectedRoute> },
 ];
 
 function App() {
@@ -55,7 +62,7 @@ export default App;
 
 function ConditionalNavbar(props) {
     const location = useLocation();
-    const hidePaths = ["/", "/login"];
+    const hidePaths = ["/", "/login", "/register", "/forgot-password"];
     if (hidePaths.includes(location.pathname)) return null;
     return <Navbar {...props} />;
 }
