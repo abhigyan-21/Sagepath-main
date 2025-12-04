@@ -63,11 +63,14 @@ export const authAPI = {
 export const userAPI = {
     getProfile: () => apiCall('/users/profile'),
 
-    updateProfile: (data) =>
-        apiCall('/users/profile', {
+    updateProfile: (data) => {
+        const isFormData = data instanceof FormData;
+        return apiCall('/users/profile', {
             method: 'PUT',
-            body: JSON.stringify(data),
-        }),
+            body: isFormData ? data : JSON.stringify(data),
+            headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+        });
+    },
 
     addFriend: (friendId) =>
         apiCall(`/users/friends/${friendId}`, { method: 'POST' }),

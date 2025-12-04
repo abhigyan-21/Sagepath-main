@@ -81,13 +81,70 @@ router.get('/profile', authenticate, async (req, res) => {
     }
 });
 
-router.put('/profile', authenticate, async (req, res) => {
+import multer from 'multer';
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+});
+
+router.put('/profile', authenticate, upload.single('profile_image'), async (req, res) => {
     try {
-        const { name, profile_image } = req.body;
+        const { name } = req.body;
+        let profile_image = req.body.profile_image; // Fallback if URL is provided manually or not changed
+
+        // Handle file upload
+        if (req.file) {
+            const file = req.file;
+            const fileExt = file.originalname.split('.').pop();
+            const fileName = `${req.userId}_${Date.now()}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            // Upload to Supabase Storage
+            const { data: uploadData, error: uploadError } = await supabase
+                .storage
+                .from('profile-images')
+                .upload(filePath, file.buffer, {
+                    contentType: file.mimetype,
+                    upsert: true
+                });
+
+            if (uploadError) {
+                // If bucket doesn't exist, try to create it
+                if (uploadError.message.includes('Bucket not found')) {
+                    await supabase.storage.createBucket('profile-images', { public: true });
+                    // Retry upload
+                    const { error: retryError } = await supabase
+                        .storage
+                        .from('profile-images')
+                        .upload(filePath, file.buffer, {
+                            contentType: file.mimetype,
+                            upsert: true
+                        });
+                    if (retryError) throw retryError;
+                } else {
+                    throw uploadError;
+                }
+            }
+
+            // Get public URL
+            const { data: { publicUrl } } = supabase
+                .storage
+                .from('profile-images')
+                .getPublicUrl(filePath);
+
+            profile_image = publicUrl;
+        }
+
+        const updates = { updated_at: new Date() };
+        if (name) updates.name = name;
+        if (profile_image) updates.profile_image = profile_image;
 
         const { data, error } = await supabase
             .from('profiles')
-            .update({ name, profile_image, updated_at: new Date() })
+            .update(updates)
             .eq('id', req.userId)
             .select()
             .single();
@@ -95,6 +152,7 @@ router.put('/profile', authenticate, async (req, res) => {
         if (error) throw error;
         res.json(data);
     } catch (error) {
+        console.error('Update profile error:', error);
         res.status(500).json({ error: error.message });
     }
 });

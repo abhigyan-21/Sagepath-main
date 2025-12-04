@@ -6,7 +6,7 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        
+
         // Create auth user with metadata
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
@@ -39,13 +39,13 @@ router.post('/register', async (req, res) => {
         // If session exists (email confirmation disabled), create profile and return token
         // Wait a moment for auth.users to be ready
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         const { error: profileError } = await supabase
             .from('profiles')
-            .insert([{ 
-                id: authData.user.id, 
+            .insert([{
+                id: authData.user.id,
                 name,
-                email 
+                email
             }]);
 
         if (profileError) {
@@ -73,7 +73,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -92,17 +92,34 @@ router.post('/login', async (req, res) => {
 
         // If profile doesn't exist, create it
         if (profileError || !profile) {
-            // ... (existing profile creation code) ...
+            // Create new profile if it doesn't exist
+            const { data: newProfile, error: createError } = await supabase
+                .from('profiles')
+                .insert([{
+                    id: data.user.id,
+                    name: data.user.user_metadata.name || 'User',
+                    email: data.user.email,
+                    profile_image: '/images/Pixel Wizard with Flaming Staff.png',
+                    level: 1,
+                    xp: 0,
+                    streaks: 1,
+                    last_login: new Date().toISOString()
+                }])
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            profile = newProfile;
         } else {
             // Update streaks
             const today = new Date();
             const lastLogin = profile.last_login ? new Date(profile.last_login) : null;
-            
+
             let newStreak = profile.streaks;
-            
+
             if (lastLogin) {
                 const diffTime = Math.abs(today - lastLogin);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                 if (diffDays === 1) {
                     // Consecutive day
@@ -120,7 +137,7 @@ router.post('/login', async (req, res) => {
             // Update profile with new streak and last_login
             const { data: updatedProfile, error: updateError } = await supabase
                 .from('profiles')
-                .update({ 
+                .update({
                     streaks: newStreak,
                     last_login: new Date().toISOString()
                 })
@@ -165,7 +182,7 @@ export default router;
 router.post('/reset-password', async (req, res) => {
     try {
         const { email } = req.body;
-        
+
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password`,
         });
